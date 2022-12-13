@@ -7,6 +7,15 @@ const errorHandeler = (err, req, res, next) => {
   // console.log(err.name);
   // console.log(err);
 
+  if (err === "this file type not allowed") {
+    (customError.status = 400),
+      (customError.msg = [
+        {
+          message: "this file type not allowed",
+          param: "avatar",
+        },
+      ]);
+  }
   if (err.name === "CastError") {
     customError.msg = err.message;
     customError.status = 400;

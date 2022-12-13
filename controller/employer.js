@@ -1,45 +1,50 @@
 const { default: mongoose } = require("mongoose");
 const Applicant = require("../models/Applicant");
 const Job = require("../models/Job");
-const { find } = require("../models/User");
 
-const getApplications = async (req, res, next) => {
+const getJobApplications = async (req, res, next) => {
   try {
-    // console.log(req.user);
-    const applications = await Applicant.aggregate([
+    const jobs = await Job.aggregate([
+      // match job id
       {
-        // job detail
-        $lookup: {
-          from: "jobs",
-          localField: "job",
-          foreignField: "_id",
-          as: "job_detail",
-          pipeline: [
-            // filter only jobs detail that is created by loggedin employer
-            {
-              $match: {
-                created_by: mongoose.Types.ObjectId(req.user._id),
-              },
-            },
-          ],
+        $match: {
+          _id: mongoose.Types.ObjectId(req.params.id),
         },
       },
-      // {
-      //   $group: {
-      //     _id: "$job",
-      //   },
-      // },
+      // from applicant table
       {
-        // jobseeker_detail
         $lookup: {
-          from: "users",
-          localField: "applied_by",
-          foreignField: "_id",
-          as: "jobseeker_detail",
+          from: "applicants",
+          localField: "_id",
+          foreignField: "job",
+          as: "applicants",
           pipeline: [
             {
+              // user detail of applicant table
+              $lookup: {
+                from: "users",
+                localField: "applied_by",
+                foreignField: "_id",
+                as: "applied_by_detail",
+                pipeline: [
+                  {
+                    $project: {
+                      password: 0,
+                      role: 0,
+                      _id: 0,
+                      __v: 0,
+                    },
+                  },
+                ],
+              },
+            },
+            {
+              $unwind: "$applied_by_detail",
+            },
+            {
               $project: {
-                password: 0,
+                job: 0,
+                applied_by: 0,
                 __v: 0,
               },
             },
@@ -51,38 +56,44 @@ const getApplications = async (req, res, next) => {
           __v: 0,
         },
       },
-      // deconstruct
-      { $unwind: "$job_detail" },
-      { $unwind: "$jobseeker_detail" },
-      // { $group: { _id: null, uniqueValues: { $addToSet: "$job" } } },
     ]);
-
-    res.send(applications);
+    res.status(200).json(jobs);
   } catch (error) {
+    // console.log(error);
     next(error);
   }
 };
 
 const getJobs = async (req, res, next) => {
   try {
-    // const jobs = await Job.find({ created_by: req.user._id });
     const jobs = await Job.aggregate([
+      // match job id
       {
         $match: {
           created_by: mongoose.Types.ObjectId(req.user._id),
         },
       },
+      // from applicant table
       {
         $lookup: {
           from: "applicants",
           localField: "_id",
           foreignField: "job",
           as: "applicants",
-          // pipeline: [
-          //   {
-          //     $count: "$applicants",
-          //   },
-          // ],
+          pipeline: [
+            {
+              $project: {
+                job: 0,
+                applied_by: 0,
+                __v: 0,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $project: {
+          __v: 0,
         },
       },
     ]);
@@ -93,4 +104,4 @@ const getJobs = async (req, res, next) => {
   }
 };
 
-module.exports = { getApplications, getJobs };
+module.exports = { getJobApplications, getJobs };

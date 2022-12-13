@@ -12,14 +12,16 @@ const deleteJob = async (req, res, next) => {
     // delete job
     const job = await Job.findByIdAndDelete(id);
 
-    // move job image to bin folder
-    const oldPath = `${__dirname}/../../uploads/job_uploads/${job.image}`;
-    const newPath = `${__dirname}/../../uploads/bin/${job.image}`;
+    if (job?.image) {
+      // move job image to bin folder
+      const oldPath = `${__dirname}/../../uploads/job_uploads/${job.image}`;
+      const newPath = `${__dirname}/../../uploads/bin/${job.image}`;
 
-    fs.rename(oldPath, newPath, function (err) {
-      if (err) throw err;
-      console.log("Successfully renamed - AKA moved!");
-    });
+      fs.rename(oldPath, newPath, function (err) {
+        if (err) throw err;
+        console.log("Successfully renamed - AKA moved!");
+      });
+    }
 
     // delete applicant of deleted job
     const applicant = await Applicant.deleteMany({ job: id });
@@ -34,6 +36,7 @@ const deleteJob = async (req, res, next) => {
 
     res.status(200).json({ msg: "no job to delete" });
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };

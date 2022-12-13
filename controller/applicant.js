@@ -19,7 +19,7 @@ const addApplicant = async (req, res, next) => {
     const applicant_res = await Applicant.create(applicant);
 
     // after success
-    // send mail to employer by jobseeker
+    // send mail to jobseeker by employer
     if (Object.keys(applicant_res).length !== 0) {
       // get job with description from job_id of req-body
       const applied_job = await Job.aggregate([
@@ -60,9 +60,9 @@ const addApplicant = async (req, res, next) => {
       });
 
       let info = await transporter.sendMail({
-        from: `<${req.user.email}>`,
-        to: `${applied_job[0].employer_detail.email}`,
-        subject: "job application", // Subject line
+        from: `${applied_job[0].employer_detail.email}`,
+        to: `<${req.user.email}>`,
+        subject: `Vacancy Submission for ${applied_job[0].title}`, // Subject line
         text: `${req.user.name} applied for job: ${applied_job[0].title}`, // plain text body
         html: `<b>${req.user.name} applied for job: ${applied_job[0].title}</b>`, // html body
       });

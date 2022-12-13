@@ -24,7 +24,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use("/api/v1/job_img", express.static("uploads/job_uploads"));
-app.use("/api/v1/user_img", express.static("uploads/user_uploads"));
+app.use("/api/v1/user_file", express.static("uploads/user_uploads"));
 
 app.get("/test", (req, res) => {
   res.json({ msg: "test" });
