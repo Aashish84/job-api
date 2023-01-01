@@ -5,7 +5,7 @@ const updateJob = async (req, res, next) => {
     if (req.body.hasOwnProperty("image")) {
       delete req.body.image;
     }
-    console.log(req.body);
+    // console.log(req.body);
     const job = await Job.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,

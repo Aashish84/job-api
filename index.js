@@ -15,6 +15,7 @@ const job = require("./routes/job");
 const applicant = require("./routes/applicant");
 const jobseeker = require("./routes/jobseeker");
 const employer = require("./routes/employer");
+const user = require("./routes/user");
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use("/api/v1/jobs", job);
 app.use("/api/v1/applicant", applicant);
 app.use("/api/v1/jobseeker", jobseeker);
 app.use("/api/v1/employer", employer);
+app.use("/api/v1/user", user);
 
 app.use(notFound);
 app.use(errorHandeler);

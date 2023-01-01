@@ -2,6 +2,7 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const fs = require("fs");
+const { EMPLOYER } = require("../constant/role");
 
 const login = async (req, res, next) => {
   try {
@@ -33,9 +34,15 @@ const login = async (req, res, next) => {
 // after sucessful creation respond jwt token
 const register = async (req, res, next) => {
   let req_body = { ...req.body };
+
   if (req.file?.filename) {
-    req_body.file = req.file.filename;
+    if (req_body.role === EMPLOYER) {
+      req_body.profileImg = req.file.filename;
+    } else {
+      req_body.file = req.file.filename;
+    }
   }
+
   try {
     // console.log({ req_body });
 
